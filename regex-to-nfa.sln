@@ -1,0 +1,16 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "regex-to-nfa", "regex-to-nfa.csproj", "{CABF9EA1-9C3C-4DB8-981E-D7B255A50FC3}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CABF9EA1-9C3C-4DB8-981E-D7B255A50FC3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CABF9EA1-9C3C-4DB8-981E-D7B255A50FC3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CABF9EA1-9C3C-4DB8-981E-D7B255A50FC3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CABF9EA1-9C3C-4DB8-981E-D7B255A50FC3}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

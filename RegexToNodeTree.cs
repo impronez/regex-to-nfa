@@ -1,15 +1,6 @@
 namespace regex_to_nfa;
 
-public enum StateType
-{
-    Alternation,
-    Quantifier,
-    Group,
-    Symbol,
-    None
-};
-
-public class RegexToNfaConverter
+public class RegexToNodeTree
 {
     private const string AlternationOperator = "|";
     private const string ZeroOrMoreQuantifier = "*";
@@ -23,20 +14,24 @@ public class RegexToNfaConverter
     private readonly Node _root;
     private Node _lastNode;
     
-    public RegexToNfaConverter(string outputFilePath, string regex)
+    public RegexToNodeTree(string outputFilePath, string regex)
     {
         _outputFilePath = outputFilePath;
         _regex = regex;
 
-        _root = new("s", null);
+        _root = new("s", null, StateType.Symbol);
         _lastNode = _root;
     }
     
-    public void SplitExpression()
+    public Node SplitExpression()
     {
         ParseExpression(_root, _regex);
 
-        PrintNode(_root, 0);
+        //PrintNode(_root, 0);
+        
+        _root.Type = StateType.Group;
+
+        return _root;
     }
 
     private void ParseExpression(Node node, string regex)
@@ -79,7 +74,7 @@ public class RegexToNfaConverter
         var prevState = _state;
         var lastNode = _lastNode;
         
-        var groupNode = new Node(GroupOperator, null);
+        var groupNode = new Node(GroupOperator, null, StateType.Group);
         
         string expression = GetGroupExpressionString(regex, ref index);
         ParseExpression(groupNode, expression);
@@ -129,7 +124,7 @@ public class RegexToNfaConverter
             throw new ArgumentException("Can't add an alternation node for empty node");
         }
 
-        var alternationNode = new Node(AlternationOperator, _lastNode);
+        var alternationNode = new Node(AlternationOperator, _lastNode, StateType.Alternation);
 
         switch (_state)
         {
@@ -155,7 +150,7 @@ public class RegexToNfaConverter
 
                 if (_lastNode.Parent.Children.Count > 1)
                 {
-                    var groupNode = new Node(GroupOperator, _lastNode.Parent);
+                    var groupNode = new Node(GroupOperator, _lastNode.Parent, StateType.Group);
                     groupNode.Children = new List<Node>(_lastNode.Parent.Children);
                     SetChildrenParent(groupNode);
                     _lastNode = groupNode;
@@ -188,7 +183,7 @@ public class RegexToNfaConverter
             throw new ArgumentException("Can't add an quantifier node for empty node");
         }
         
-        var quantifierNode = new Node(symbol, _lastNode.Parent);
+        var quantifierNode = new Node(symbol, _lastNode.Parent, StateType.Quantifier);
 
         switch (_state)
         {
@@ -203,6 +198,7 @@ public class RegexToNfaConverter
                 
                 quantifierNode.AddNode(_lastNode);
                 _lastNode.Parent.LastNode = quantifierNode;
+                _lastNode.Parent = quantifierNode;
                 _lastNode = quantifierNode;
                 break;
             case StateType.None:
@@ -214,7 +210,7 @@ public class RegexToNfaConverter
 
     private void AddSymbolNode(Node node, string symbol)
     {
-        var symbolNode = new Node(symbol, _lastNode);
+        var symbolNode = new Node(symbol, _lastNode, StateType.Symbol);
 
         switch (_state)
         {
@@ -250,7 +246,7 @@ public class RegexToNfaConverter
 
     private Node GroupedNode(Node existingNode, Node addingNode)
     {
-        var groupNode = new Node(GroupOperator, existingNode.Parent);
+        var groupNode = new Node(GroupOperator, existingNode.Parent, StateType.Group);
         groupNode.AddNode(existingNode);
         groupNode.AddNode(addingNode);
         
